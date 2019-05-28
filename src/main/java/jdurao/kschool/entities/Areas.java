@@ -2,16 +2,19 @@ package jdurao.kschool.entities;
 
 import jdurao.kschool.pojo.AreaJson;
 import jdurao.kschool.pojo.types.AreaJsonType;
+import org.hibernate.annotations.Table;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 
+
 @Entity(name = "areas")
 @TypeDef(name = "AreaJsonType", typeClass = AreaJsonType.class)
+@Table(appliesTo = "areas")
 public class Areas {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
