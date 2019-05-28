@@ -2,21 +2,23 @@ package jdurao.kschool.pojo;
 
 import java.io.Serializable;
 
-public class AreaJson implements Serializable {
+public class LabelJson implements Serializable {
     private Long id;
-    private Long placeId;
+    private Long areaId;
     private String name;
+    private Long code;
     private String sortName;
     private String comment;
     private String updatedDate;
 
-    public AreaJson() {
+    public LabelJson() {
     }
 
-    public AreaJson(Long id, Long placeId, String name, String sortName, String comment, String updatedDate) {
+    public LabelJson(Long id, Long areaId, String name, Long code, String sortName, String comment, String updatedDate) {
         this.id = id;
-        this.placeId = placeId;
+        this.areaId = areaId;
         this.name = name;
+        this.code = code;
         this.sortName = sortName;
         this.comment = comment;
         this.updatedDate = updatedDate;
@@ -30,12 +32,12 @@ public class AreaJson implements Serializable {
         this.id = id;
     }
 
-    public Long getPlaceId() {
-        return placeId;
+    public Long getAreaId() {
+        return areaId;
     }
 
-    public void setPlaceId(Long placeId) {
-        this.placeId = placeId;
+    public void setAreaId(Long areaId) {
+        this.areaId = areaId;
     }
 
     public String getName() {
@@ -44,6 +46,14 @@ public class AreaJson implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getCode() {
+        return code;
+    }
+
+    public void setCode(Long code) {
+        this.code = code;
     }
 
     public String getSortName() {

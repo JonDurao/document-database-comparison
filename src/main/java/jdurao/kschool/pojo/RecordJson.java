@@ -2,22 +2,22 @@ package jdurao.kschool.pojo;
 
 import java.io.Serializable;
 
-public class AreaJson implements Serializable {
+public class RecordJson implements Serializable {
     private Long id;
-    private Long placeId;
+    private Long artistId;
     private String name;
-    private String sortName;
+    private Long length;
     private String comment;
     private String updatedDate;
 
-    public AreaJson() {
+    public RecordJson() {
     }
 
-    public AreaJson(Long id, Long placeId, String name, String sortName, String comment, String updatedDate) {
+    public RecordJson(Long id, Long artistId, String name, Long length, String comment, String updatedDate) {
         this.id = id;
-        this.placeId = placeId;
+        this.artistId = artistId;
         this.name = name;
-        this.sortName = sortName;
+        this.length = length;
         this.comment = comment;
         this.updatedDate = updatedDate;
     }
@@ -30,12 +30,12 @@ public class AreaJson implements Serializable {
         this.id = id;
     }
 
-    public Long getPlaceId() {
-        return placeId;
+    public Long getArtistId() {
+        return artistId;
     }
 
-    public void setPlaceId(Long placeId) {
-        this.placeId = placeId;
+    public void setArtistId(Long artistId) {
+        this.artistId = artistId;
     }
 
     public String getName() {
@@ -46,12 +46,12 @@ public class AreaJson implements Serializable {
         this.name = name;
     }
 
-    public String getSortName() {
-        return sortName;
+    public Long getLength() {
+        return length;
     }
 
-    public void setSortName(String sortName) {
-        this.sortName = sortName;
+    public void setLength(Long length) {
+        this.length = length;
     }
 
     public String getComment() {
