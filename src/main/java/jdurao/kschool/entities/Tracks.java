@@ -1,27 +1,21 @@
 package jdurao.kschool.entities;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity(name = "Tracks")
 @Table(name = "tracks")
-@TypeDef(
-        name = "jsonb",
-        typeClass = JsonBinaryType.class
-)
 public class Tracks {
     @Id
     @GeneratedValue
     private Long id;
 
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb")
     private String track;
 
-    public Tracks() {}
+    public Tracks() {
+    }
 
     public Tracks(String track) {
         this.track = track;

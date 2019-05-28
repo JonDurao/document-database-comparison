@@ -1,29 +1,23 @@
 package jdurao.kschool.entities;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import jdurao.kschool.pojo.AreaJson;
 
 import javax.persistence.*;
 
-@Entity(name = "Areas")
-@Table(name = "areas")
-@TypeDef(
-        name = "jsonb",
-        typeClass = JsonBinaryType.class
-)
+@Entity(name = "areas")
 public class Areas {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb")
-    private String area;
+    @Column
+    private AreaJson area;
 
-    public Areas() {}
+    public Areas() {
+    }
 
-    public Areas(String area) {
+    public Areas(AreaJson area) {
         this.area = area;
     }
 
@@ -35,11 +29,11 @@ public class Areas {
         this.id = id;
     }
 
-    public String getArea() {
+    public AreaJson getArea() {
         return area;
     }
 
-    public void setArea(String area) {
+    public void setArea(AreaJson area) {
         this.area = area;
     }
 }
