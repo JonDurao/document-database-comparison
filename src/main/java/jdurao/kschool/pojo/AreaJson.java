@@ -3,8 +3,8 @@ package jdurao.kschool.pojo;
 import java.io.Serializable;
 
 public class AreaJson implements Serializable {
-    private String id;
-    private String placeId;
+    private Integer id;
+    private Integer placeId;
     private String name;
     private String sortName;
     private String comment;
@@ -13,7 +13,7 @@ public class AreaJson implements Serializable {
     public AreaJson() {
     }
 
-    public AreaJson(String id, String placeId, String name, String sortName, String comment, String updatedDate) {
+    public AreaJson(Integer id, Integer placeId, String name, String sortName, String comment, String updatedDate) {
         this.id = id;
         this.placeId = placeId;
         this.name = name;
@@ -22,19 +22,19 @@ public class AreaJson implements Serializable {
         this.updatedDate = updatedDate;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getPlaceId() {
+    public Integer getPlaceId() {
         return placeId;
     }
 
-    public void setPlaceId(String placeId) {
+    public void setPlaceId(Integer placeId) {
         this.placeId = placeId;
     }
 
