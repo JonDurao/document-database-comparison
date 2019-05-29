@@ -18,6 +18,8 @@ public class App {
         postgresOperations.cInsertMultipleRecordsSmall();
         postgresOperations.dInsertMultipleRecordsMedium();
         postgresOperations.eInsertMultipleRecordsLarge();
-        postgresOperations.fDeleteFieldOne();
+        postgresOperations.fUpdateFieldOne();
+        postgresOperations.gUpdateFieldMultiple();
+        postgresOperations.hUpdateFieldLinked();
     }
 }

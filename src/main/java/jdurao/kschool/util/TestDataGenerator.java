@@ -3,6 +3,7 @@ package jdurao.kschool.util;
 import com.google.gson.JsonObject;
 
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 public class TestDataGenerator {
@@ -22,6 +23,35 @@ public class TestDataGenerator {
         jsonObject.addProperty("id", id);
         jsonObject.addProperty("name", "artist" + id);
         jsonObject.addProperty("sortName", id + "artist");
+        jsonObject.addProperty("updatedDate", new Date().toString());
+
+        return jsonObject.toString();
+    }
+
+    public static String createRecordJson(Long id) {
+        Random random = new Random();
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", id);
+        jsonObject.addProperty("artistId", random.nextInt(1000));
+        jsonObject.addProperty("name", "record" + id);
+        jsonObject.addProperty("length", random.nextInt(7));
+        jsonObject.addProperty("comment", UUID.randomUUID().toString());
+        jsonObject.addProperty("updatedDate", new Date().toString());
+
+        return jsonObject.toString();
+    }
+
+    public static String createTrackJson(Long id) {
+        Random random = new Random();
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("id", id);
+        jsonObject.addProperty("recordId", random.nextInt(1000));
+        jsonObject.addProperty("name", "record" + id);
+        jsonObject.addProperty("length", random.nextInt(75));
+        jsonObject.addProperty("number", random.nextInt(12));
+        jsonObject.addProperty("comment", UUID.randomUUID().toString());
         jsonObject.addProperty("updatedDate", new Date().toString());
 
         return jsonObject.toString();

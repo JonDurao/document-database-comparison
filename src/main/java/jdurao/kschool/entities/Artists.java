@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.ArtistJson;
+import jdurao.kschool.pojo.types.AreaJsonType;
+import jdurao.kschool.pojo.types.ArtistJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Artists")
+@TypeDef(name = "ArtistJsonType", typeClass = ArtistJsonType.class)
 @Table(name = "artists")
 public class Artists {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String artist;
+    @Column
+    @Type(type = "ArtistJsonType")
+    private ArtistJson artist;
 
     public Artists() {
     }
 
-    public Artists(String artist) {
+    public Artists(ArtistJson artist) {
         this.artist = artist;
     }
 
@@ -29,11 +34,11 @@ public class Artists {
         this.id = id;
     }
 
-    public String getArtist() {
+    public ArtistJson getArtist() {
         return artist;
     }
 
-    public void setArtist(String artist) {
+    public void setArtist(ArtistJson artist) {
         this.artist = artist;
     }
 }

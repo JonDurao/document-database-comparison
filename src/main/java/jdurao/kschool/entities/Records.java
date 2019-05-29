@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.RecordJson;
+import jdurao.kschool.pojo.types.RecordJsonType;
+import jdurao.kschool.pojo.types.TrackJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Records")
+@TypeDef(name = "RecordJsonType", typeClass = RecordJsonType.class)
 @Table(name = "records")
 public class Records {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String record;
+    @Column
+    @Type(type = "RecordJsonType")
+    private RecordJson record;
 
     public Records() {
     }
 
-    public Records(String record) {
+    public Records(RecordJson record) {
         this.record = record;
     }
 
@@ -29,11 +34,11 @@ public class Records {
         this.id = id;
     }
 
-    public String getRecord() {
+    public RecordJson getRecord() {
         return record;
     }
 
-    public void setRecord(String record) {
+    public void setRecord(RecordJson record) {
         this.record = record;
     }
 }

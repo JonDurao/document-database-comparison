@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.TrackJson;
+import jdurao.kschool.pojo.types.ArtistJsonType;
+import jdurao.kschool.pojo.types.TrackJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Tracks")
+@TypeDef(name = "TrackJsonType", typeClass = TrackJsonType.class)
 @Table(name = "tracks")
 public class Tracks {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String track;
+    @Column
+    @Type(type = "TrackJsonType")
+    private TrackJson track;
 
     public Tracks() {
     }
 
-    public Tracks(String track) {
+    public Tracks(TrackJson track) {
         this.track = track;
     }
 
@@ -29,11 +34,11 @@ public class Tracks {
         this.id = id;
     }
 
-    public String getTrack() {
+    public TrackJson getTrack() {
         return track;
     }
 
-    public void setTrack(String track) {
+    public void setTrack(TrackJson track) {
         this.track = track;
     }
 }
