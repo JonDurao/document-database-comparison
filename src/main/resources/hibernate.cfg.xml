@@ -25,5 +25,14 @@
         <property name="hibernate.dbcp.minIdle">5</property>
         <property name="hibernate.dbcp.maxWaitMillis">-1</property>
         <mapping class="jdurao.kschool.entities.Areas" />
+        <mapping class="jdurao.kschool.entities.Artists" />
+        <mapping class="jdurao.kschool.entities.Formats" />
+        <mapping class="jdurao.kschool.entities.Labels" />
+        <mapping class="jdurao.kschool.entities.Languages" />
+        <mapping class="jdurao.kschool.entities.Mediums" />
+        <mapping class="jdurao.kschool.entities.Places" />
+        <mapping class="jdurao.kschool.entities.Records" />
+        <mapping class="jdurao.kschool.entities.Releases" />
+        <mapping class="jdurao.kschool.entities.Tracks" />
     </session-factory>
 </hibernate-configuration>

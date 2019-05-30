@@ -21,5 +21,10 @@ public class App {
         postgresOperations.fUpdateFieldOne();
         postgresOperations.gUpdateFieldMultiple();
         postgresOperations.hUpdateFieldLinked();
+        postgresOperations.iDeleteKeyValuePair();
+        postgresOperations.jDeleteDocument();
+        postgresOperations.kSelectSimple();
+        postgresOperations.lSelectFiltered();
+        postgresOperations.mSelectJoined();
     }
 }

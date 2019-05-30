@@ -1,24 +1,22 @@
 package jdurao.kschool;
 
 import jdurao.kschool.entities.Areas;
-import jdurao.kschool.entities.Artists;
+import jdurao.kschool.entities.Formats;
 import jdurao.kschool.entities.Records;
-import jdurao.kschool.entities.Tracks;
-import jdurao.kschool.pojo.AreaJson;
-import jdurao.kschool.util.HibernateUtil;
+import jdurao.kschool.pojo.RecordJson;
 import jdurao.kschool.util.TestDataGenerator;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -29,15 +27,21 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 0)
 @Measurement(iterations = 4)
 public class PostgresOperations {
+    @Param({"1"})
+    public int iterations;
     List<String> valuesSmall = new ArrayList<>();
     List<String> valuesMedium = new ArrayList<>();
     List<String> valuesLarge = new ArrayList<>();
     String inputSmall;
     String inputMedium;
     String inputLarge;
-
-    @Param({"1"})
-    public int iterations;
+    String inputFormat;
+    String inputLanguages;
+    String inputMediums;
+    String inputPlaces;
+    String inputReleases;
+    String inputRecords;
+    String inputTracks;
 
     public void main() throws RunnerException {
         Options opt = new OptionsBuilder()
@@ -49,28 +53,101 @@ public class PostgresOperations {
         new Runner(opt).run();
     }
 
+    private void createArea(int maxId) {
+        for (int i = 0; i <= maxId; i++)
+            valuesSmall.add("('" + TestDataGenerator.createAreaJson((long) i) + "')");
+    }
+
+    private void createArtist(int maxId, int maxAreaId) {
+        for (int i = 0; i <= maxId; i++)
+            valuesLarge.add("('" + TestDataGenerator.createArtistJson((long) i, maxAreaId) + "')");
+    }
+
+    private void createFormat(int maxId) {
+        List<String> values = new ArrayList<>();
+
+        for (int i = 0; i <= maxId; i++)
+            values.add("('" + TestDataGenerator.createFormatJson((long) i) + "')");
+
+        inputFormat = String.join(",", values);
+    }
+
+    private void createLabel(int maxId, int maxAreaId) {
+        for (int i = 0; i <= maxId; i++)
+            valuesMedium.add("('" + TestDataGenerator.createLabelJson((long) i, maxAreaId) + "')");
+    }
+
+    private void createLanguage(int maxId) {
+        List<String> values = new ArrayList<>();
+
+        for (int i = 0; i <= maxId; i++)
+            values.add("('" + TestDataGenerator.createLanguageJson((long) i) + "')");
+
+        inputLanguages = String.join(",", values);
+    }
+
+    private void createMediums(int maxId, int maxFormatId) {
+        List<String> values = new ArrayList<>();
+
+        for (int i = 0; i <= maxId; i++)
+            values.add("('" + TestDataGenerator.createMediumJson((long) i, maxFormatId) + "')");
+
+        inputMediums = String.join(",", values);
+    }
+
+    private void createPlaces(int maxId) {
+        List<String> values = new ArrayList<>();
+
+        for (int i = 0; i <= maxId; i++)
+            values.add("('" + TestDataGenerator.createPlaceJson((long) i) + "')");
+
+        inputPlaces = String.join(",", values);
+    }
+
+    private void createRecords(int maxId, int maxArtistId) {
+        List<String> values = new ArrayList<>();
+
+        for (int i = 0; i <= maxId; i++)
+            values.add("('" + TestDataGenerator.createRecordJson((long) i, maxArtistId) + "')");
+
+        inputRecords = String.join(",", values);
+    }
+
+    private void createReleases(int maxId, Integer maxRecordId, Integer maxLanguageId, Integer maxLabelId, Integer maxMediumId) {
+        List<String> values = new ArrayList<>();
+
+        for (int i = 0; i <= maxId; i++)
+            values.add("('" + TestDataGenerator.createReleaseJson((long) i, maxRecordId, maxLanguageId, maxLabelId, maxMediumId) + "')");
+
+        inputReleases = String.join(",", values);
+    }
+
+    private void createTracks(int maxId, Integer maxRecordId) {
+        List<String> values = new ArrayList<>();
+
+        for (int i = 0; i <= maxId; i++)
+            values.add("('" + TestDataGenerator.createTrackJson((long) i, maxRecordId) + "')");
+
+        inputTracks = String.join(",", values);
+    }
+
     @Setup(Level.Invocation)
     public void aCreationData() {
-        List<String> valuesRecords = new ArrayList<>();
-        List<String> valuesTracks = new ArrayList<>();
+        createArea(100);
+        createArtist(10000, 100);
+        createLabel(100, 100);
+        createFormat(10);
+        createLabel(100, 100);
+        createLanguage(100);
+        createMediums(10, 100);
+        createPlaces(100);
+        createRecords(100, 10000);
+        createReleases(10, 100, 100, 100, 100);
+        createTracks(1000, 100);
 
-        for (int i = 0; i < 100; i++) {
-            valuesSmall.add("('" + TestDataGenerator.createAreaJson((long) i) + "')");
-            valuesRecords.add("('" + TestDataGenerator.createRecordJson((long) i) + "')");
-            valuesTracks.add("('" + TestDataGenerator.createTrackJson((long) i) + "')");
-        }
         inputSmall = String.join(",", valuesSmall);
-        for (int i = 0; i < 1000; i++) {
-            valuesMedium.add("('" + TestDataGenerator.createLabelJson((long) i) + "')");
-        }
         inputMedium = String.join(",", valuesMedium);
-        for (int i = 0; i < 10000; i++) {
-            valuesLarge.add("('" + TestDataGenerator.createArtistJson((long) i) + "')");
-        }
         inputLarge = String.join(",", valuesLarge);
-
-        String inputRecords = String.join(",", valuesRecords);
-        String inputTracks = String.join(",", valuesTracks);
 
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -78,6 +155,11 @@ public class PostgresOperations {
 
         entityTransaction.begin();
 
+        entityManager.createNativeQuery("INSERT INTO formats (format) VALUES " + inputFormat).executeUpdate();
+        entityManager.createNativeQuery("INSERT INTO languages (language) VALUES " + inputLanguages).executeUpdate();
+        entityManager.createNativeQuery("INSERT INTO mediums (medium) VALUES " + inputMediums).executeUpdate();
+        entityManager.createNativeQuery("INSERT INTO places (place) VALUES " + inputPlaces).executeUpdate();
+        entityManager.createNativeQuery("INSERT INTO releases (release) VALUES " + inputReleases).executeUpdate();
         entityManager.createNativeQuery("INSERT INTO records (record) VALUES " + inputRecords).executeUpdate();
         entityManager.createNativeQuery("INSERT INTO tracks (track) VALUES " + inputTracks).executeUpdate();
 
@@ -146,85 +228,135 @@ public class PostgresOperations {
 
     @Benchmark
     public void fUpdateFieldOne() {
-        for (int i = 0; i < iterations; i++){
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-            EntityTransaction entityTransaction = entityManager.getTransaction();
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
 
-            entityTransaction.begin();
+        entityTransaction.begin();
 
-            Areas area = (Areas) entityManager.createNativeQuery("SELECT  * FROM areas a WHERE a.area->'id' = '99' LIMIT 1", Areas.class).getSingleResult();
+        Areas area = (Areas) entityManager.createNativeQuery("SELECT  * FROM areas a WHERE a.area->'id' = '99' LIMIT 1", Areas.class).getSingleResult();
 
-            area.getArea().setComment("New Comment");
+        area.getArea().setComment("New Comment");
 
-            entityManager.persist(area);
+        entityManager.persist(area);
 
-            entityTransaction.commit();
-            entityManager.close();
-            entityManagerFactory.close();
-        }
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
     }
 
     @Benchmark
     public void gUpdateFieldMultiple() {
-        for (int i = 0; i < iterations; i++){
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-            EntityTransaction entityTransaction = entityManager.getTransaction();
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
 
-            entityTransaction.begin();
+        entityTransaction.begin();
 
-            List<Artists> artists
-                    = (List<Artists>) entityManager
-                    .createNativeQuery("SELECT  * " +
-                            "FROM artists a " +
-                            "WHERE a.artist->'id' " +
-                            "IN ('1', '2', '3', '4', '5', '6', '7', '8', '9'," +
-                            "'10', '20', '30', '40', '50', '60', '70', '80', '90'," +
-                            "'11', '21', '31', '41', '51', '61', '71', '81', '91'," +
-                            "'12', '22', '32', '42', '52', '62', '72', '82', '92'," +
-                            "'13', '23', '33', '43', '53', '63', '73', '83', '93')"
-                            , Artists.class).getResultList();
+        entityManager.createNativeQuery("UPDATE artists " +
+                "SET artist = artist || '{\"areaID\": " + 999999999 + " }' " +
+                "WHERE ARTIST->'id' " +
+                "IN ('1', '2', '3', '4', '5', '6', '7', '8', '9')").executeUpdate();
 
-            artists.stream().forEach(e -> {
-                Random random = new Random();
-                e.getArtist().setAreaId((long) random.nextInt(100));
-            });
-
-            entityManager.persist(artists);
-
-            entityTransaction.commit();
-            entityManager.close();
-            entityManagerFactory.close();
-        }
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
     }
 
     @Benchmark
     public void hUpdateFieldLinked() {
-        for (int i = 0; i < iterations; i++){
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-            EntityTransaction entityTransaction = entityManager.getTransaction();
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
 
-            entityTransaction.begin();
+        entityTransaction.begin();
 
-            List<Tracks> tracks
-                    = (List<Tracks>) entityManager
-                    .createNativeQuery("SELECT * " +
-                                    "FROM tracks t " +
-                                    "JOIN records r ON t.track->'recordId'=r.record->'id'"
-                            , Tracks.class).getResultList();
+        entityManager.createNativeQuery("UPDATE releases " +
+                "SET release = jsonb_set(release, '{artistId}'::::text[], RECORD->'artistId',true) " +
+                "FROM RECORDS " +
+                "WHERE RECORD->'id' = release->'recordId' AND release->'id' < '50';").executeUpdate();
 
-            tracks.stream().forEach(e -> {
-                Records records =  entityManager.find(Records.class, e.getTrack().getRecordId());
-                e.getTrack().setArtistId(records.getRecord().getArtistId());
-            });
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
 
-            entityManager.persist(tracks);
+    @Benchmark
+    public void iDeleteKeyValuePair() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
 
-            entityTransaction.commit();
-            entityManager.close();
-            entityManagerFactory.close();
-        }
+        entityTransaction.begin();
+
+        entityManager.createNativeQuery("UPDATE AREAS " +
+                "SET AREA = AREA - 'comment' " +
+                "WHERE AREA->'id' > '99' OR AREA->'id' < '99';").executeUpdate();
+
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
+    @Benchmark
+    public void jDeleteDocument() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        entityTransaction.begin();
+
+        entityManager.createNativeQuery("DELETE " +
+                "FROM AREAS " +
+                "WHERE AREA->'id' > '99' OR AREA->'id' < '99';").executeUpdate();
+
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
+    @Benchmark
+    public void kSelectSimple() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        entityTransaction.begin();
+
+        List<Formats> result = entityManager.createNativeQuery("SELECT * from formats", Formats.class).getResultList();
+
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
+    @Benchmark
+    public void lSelectFiltered() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        entityTransaction.begin();
+
+        List<Records> result = entityManager.createNativeQuery("SELECT * from records WHERE record->'length' = '1'", Records.class).getResultList();
+
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
+
+    @Benchmark
+    public void mSelectJoined() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        entityTransaction.begin();
+
+        List<Formats> result = entityManager.createNativeQuery("SELECT FORMATS.* from RELEASES JOIN MEDIUMS ON release->'mediumId' = medium->'id' JOIN FORMATS ON FORMAT->'id' = MEDIUM->'formatId'", Formats.class).getResultList();
+
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
     }
 }
