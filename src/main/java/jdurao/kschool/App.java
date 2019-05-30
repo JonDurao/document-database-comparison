@@ -5,10 +5,11 @@ import org.openjdk.jmh.runner.RunnerException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.Date;
 
 public class App {
     public static void main(String[] args) throws RunnerException, FileNotFoundException {
-        PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
+        PrintStream out = new PrintStream(new FileOutputStream("results-" + new Date().getTime() + ".txt"));
         System.setOut(out);
 
         PostgresOperations postgresOperations = new PostgresOperations();
