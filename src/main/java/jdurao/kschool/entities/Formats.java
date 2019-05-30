@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.FormatJson;
+import jdurao.kschool.pojo.types.ArtistJsonType;
+import jdurao.kschool.pojo.types.FormatJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Formats")
+@TypeDef(name = "FormatJsonType", typeClass = FormatJsonType.class)
 @Table(name = "formats")
 public class Formats {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String format;
+    @Column
+    @Type(type = "FormatJsonType")
+    private FormatJson format;
 
     public Formats() {
     }
 
-    public Formats(String format) {
+    public Formats(FormatJson format) {
         this.format = format;
     }
 
@@ -29,11 +34,11 @@ public class Formats {
         this.id = id;
     }
 
-    public String getFormat() {
+    public FormatJson getFormat() {
         return format;
     }
 
-    public void setFormat(String format) {
+    public void setFormat(FormatJson format) {
         this.format = format;
     }
 }

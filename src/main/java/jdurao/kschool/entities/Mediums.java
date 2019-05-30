@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.MediumJson;
+import jdurao.kschool.pojo.types.LanguageJsonType;
+import jdurao.kschool.pojo.types.MediumJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Mediums")
+@TypeDef(name = "MediumJsonType", typeClass = MediumJsonType.class)
 @Table(name = "mediums")
 public class Mediums {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String medium;
+    @Column
+    @Type(type = "MediumJsonType")
+    private MediumJson medium;
 
     public Mediums() {
     }
 
-    public Mediums(String medium) {
+    public Mediums(MediumJson medium) {
         this.medium = medium;
     }
 
@@ -29,11 +34,11 @@ public class Mediums {
         this.id = id;
     }
 
-    public String getMedium() {
+    public MediumJson getMedium() {
         return medium;
     }
 
-    public void setMedium(String medium) {
+    public void setMedium(MediumJson medium) {
         this.medium = medium;
     }
 }

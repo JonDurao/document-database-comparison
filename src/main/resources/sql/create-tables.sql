@@ -21,6 +21,10 @@ DROP TABLE RELEASES;
 DROP TABLE TRACKS;
 
 
+SELECT RECORDS.* from tracks JOIN records ON record->'id' = track->'recordId' JOIN ARTISTS ON artist->'id' = record->'artistID' GROUP BY RECORDS.ID
+SELECT FORMATS.* from RELEASES JOIN MEDIUMS ON release->'mediumId' = medium->'id' JOIN FORMATS ON FORMAT->'id' = MEDIUM->'formatId'
+
+
 SELECT jsonb_set(TRACK, '{testAreaId}'::text[], RECORD->'artistId',true) from TRACKS INNER JOIN RECORDS ON RECORD->'id' = TRACK->'recordId';
 
 UPDATE TRACKS

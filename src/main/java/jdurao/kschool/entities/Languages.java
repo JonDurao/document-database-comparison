@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.LanguageJson;
+import jdurao.kschool.pojo.types.LabelJsonType;
+import jdurao.kschool.pojo.types.LanguageJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Languages")
+@TypeDef(name = "LanguageJsonType", typeClass = LanguageJsonType.class)
 @Table(name = "languages")
 public class Languages {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String language;
+    @Column
+    @Type(type = "LanguageJsonType")
+    private LanguageJson language;
 
     public Languages() {
     }
 
-    public Languages(String language) {
+    public Languages(LanguageJson language) {
         this.language = language;
     }
 
@@ -29,11 +34,11 @@ public class Languages {
         this.id = id;
     }
 
-    public String getLanguage() {
+    public LanguageJson getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(LanguageJson language) {
         this.language = language;
     }
 }

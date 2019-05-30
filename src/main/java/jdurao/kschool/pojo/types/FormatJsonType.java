@@ -1,7 +1,7 @@
 package jdurao.kschool.pojo.types;
 
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
-import jdurao.kschool.pojo.AreaJson;
+import jdurao.kschool.pojo.FormatJson;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
@@ -20,8 +20,8 @@ public class FormatJsonType implements UserType {
     }
 
     @Override
-    public Class<AreaJson> returnedClass() {
-        return AreaJson.class;
+    public Class<FormatJson> returnedClass() {
+        return FormatJson.class;
     }
 
     @Override

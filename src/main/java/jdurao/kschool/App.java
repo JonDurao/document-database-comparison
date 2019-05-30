@@ -14,7 +14,9 @@ public class App {
 
         PostgresOperations postgresOperations = new PostgresOperations();
         postgresOperations.main();
-        postgresOperations.aCreationData();
+        postgresOperations.setupSets();
+        postgresOperations.aacleanup();
+        postgresOperations.abCreationData();
         postgresOperations.bInsertOneRecord();
         postgresOperations.cInsertMultipleRecordsSmall();
         postgresOperations.dInsertMultipleRecordsMedium();

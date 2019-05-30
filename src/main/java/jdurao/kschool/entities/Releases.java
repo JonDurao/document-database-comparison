@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.ReleaseJson;
+import jdurao.kschool.pojo.types.PlaceJsonType;
+import jdurao.kschool.pojo.types.ReleaseJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Releases")
+@TypeDef(name = "ReleaseJsonType", typeClass = ReleaseJsonType.class)
 @Table(name = "releases")
 public class Releases {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String release;
+    @Column
+    @Type(type = "ReleaseJsonType")
+    private ReleaseJson release;
 
     public Releases() {
     }
 
-    public Releases(String release) {
+    public Releases(ReleaseJson release) {
         this.release = release;
     }
 
@@ -29,11 +34,11 @@ public class Releases {
         this.id = id;
     }
 
-    public String getRelease() {
+    public ReleaseJson getRelease() {
         return release;
     }
 
-    public void setRelease(String release) {
+    public void setRelease(ReleaseJson release) {
         this.release = release;
     }
 }

@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.LabelJson;
+import jdurao.kschool.pojo.types.FormatJsonType;
+import jdurao.kschool.pojo.types.LabelJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Labels")
+@TypeDef(name = "LabelJsonType", typeClass = LabelJsonType.class)
 @Table(name = "labels")
 public class Labels {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String label;
+    @Column
+    @Type(type = "LabelJsonType")
+    private LabelJson label;
 
     public Labels() {
     }
 
-    public Labels(String label) {
+    public Labels(LabelJson label) {
         this.label = label;
     }
 
@@ -29,11 +34,11 @@ public class Labels {
         this.id = id;
     }
 
-    public String getLabel() {
+    public LabelJson getLabel() {
         return label;
     }
 
-    public void setLabel(String label) {
+    public void setLabel(LabelJson label) {
         this.label = label;
     }
 }

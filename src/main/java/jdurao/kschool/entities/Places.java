@@ -1,23 +1,28 @@
 package jdurao.kschool.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jdurao.kschool.pojo.PlaceJson;
+import jdurao.kschool.pojo.types.MediumJsonType;
+import jdurao.kschool.pojo.types.PlaceJsonType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import javax.persistence.*;
 
 @Entity(name = "Places")
+@TypeDef(name = "PlaceJsonType", typeClass = PlaceJsonType.class)
 @Table(name = "places")
 public class Places {
     @Id
     @GeneratedValue
     private Long id;
-
-    private String place;
+    @Column
+    @Type(type = "PlaceJsonType")
+    private PlaceJson place;
 
     public Places() {
     }
 
-    public Places(String place) {
+    public Places(PlaceJson place) {
         this.place = place;
     }
 
@@ -29,11 +34,11 @@ public class Places {
         this.id = id;
     }
 
-    public String getPlace() {
+    public PlaceJson getPlace() {
         return place;
     }
 
-    public void setPlace(String place) {
+    public void setPlace(PlaceJson place) {
         this.place = place;
     }
 }
