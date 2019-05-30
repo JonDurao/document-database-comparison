@@ -1,6 +1,7 @@
 package jdurao.kschool.util;
 
 import com.google.gson.JsonObject;
+import org.bson.Document;
 
 import java.util.Date;
 import java.util.Random;
@@ -17,6 +18,14 @@ public class TestDataGenerator {
 
         return jsonObject.toString();
     }
+    public static Document createAreaDocument(Long id) {
+        return new Document()
+                .append("id", id)
+                .append("name", "area" + id)
+                .append("sortName", id + "area")
+                .append("comment", UUID.randomUUID().toString())
+                .append("updatedDate", new Date().toString());
+    }
 
     public static String createArtistJson(Long id, Integer maxAreaId) {
         Random random = new Random();
@@ -29,6 +38,16 @@ public class TestDataGenerator {
         jsonObject.addProperty("updatedDate", new Date().toString());
 
         return jsonObject.toString();
+    }
+    public static Document createArtistDocument(Long id, Integer maxAreaId) {
+        Random random = new Random();
+
+        return new Document()
+                .append("id", id)
+                .append("areaId", random.nextInt(maxAreaId))
+                .append("name", "artist" + id)
+                .append("sortName", id + "artist")
+                .append("updatedDate", new Date().toString());
     }
 
     public static String createRecordJson(Long id, Integer maxArtistId) {
@@ -43,6 +62,17 @@ public class TestDataGenerator {
         jsonObject.addProperty("updatedDate", new Date().toString());
 
         return jsonObject.toString();
+    }
+    public static Document createRecordDocument(Long id, Integer maxArtistId) {
+        Random random = new Random();
+
+        return new Document()
+                .append("id", id)
+                .append("artistId", random.nextInt(maxArtistId))
+                .append("name", "record" + id)
+                .append("length", random.nextInt(2))
+                .append("comment", UUID.randomUUID().toString())
+                .append("updatedDate", new Date().toString());
     }
 
     public static String createTrackJson(Long id, Integer maxRecordId) {
@@ -59,6 +89,18 @@ public class TestDataGenerator {
 
         return jsonObject.toString();
     }
+    public static Document createTrackDocument(Long id, Integer maxRecordId) {
+        Random random = new Random();
+
+        return new Document()
+                .append("id", id)
+                .append("recordId", random.nextInt(maxRecordId))
+                .append("name", "track" + id)
+                .append("length", random.nextInt(75))
+                .append("number", random.nextInt(12))
+                .append("comment", UUID.randomUUID().toString())
+                .append("updatedDate", new Date().toString());
+    }
 
     public static String createLabelJson(Long id, Integer maxAreaId) {
         Random random = new Random();
@@ -74,6 +116,18 @@ public class TestDataGenerator {
 
         return jsonObject.toString();
     }
+    public static Document createLabelDocument(Long id, Integer maxAreaId) {
+        Random random = new Random();
+
+        return new Document()
+                .append("id", id)
+                .append("areaId", random.nextInt(maxAreaId))
+                .append("name", "label" + id)
+                .append("code", new Date().getTime())
+                .append("sortName", id + "label")
+                .append("comment", UUID.randomUUID().toString())
+                .append("updatedDate", new Date().toString());
+    }
 
     public static String createLanguageJson(Long id) {
         JsonObject jsonObject = new JsonObject();
@@ -82,6 +136,11 @@ public class TestDataGenerator {
 
         return jsonObject.toString();
     }
+    public static Document createLanguageDocument(Long id) {
+        return new Document()
+                .append("id", id)
+                .append("name", "language " + id);
+    }
 
     public static String createFormatJson(Long id) {
         JsonObject jsonObject = new JsonObject();
@@ -89,6 +148,11 @@ public class TestDataGenerator {
         jsonObject.addProperty("name", "format " + id);
 
         return jsonObject.toString();
+    }
+    public static Document createFormatDocument(Long id) {
+        return new Document()
+                .append("id", id)
+                .append("name", "format " + id);
     }
 
     public static String createMediumJson(Long id, Integer maxFormatId) {
@@ -102,6 +166,15 @@ public class TestDataGenerator {
 
         return jsonObject.toString();
     }
+    public static Document createMediumDocument(Long id, Integer maxFormatId) {
+        Random random = new Random();
+
+        return new Document()
+                .append("id", id)
+                .append("formatId", random.nextInt(maxFormatId))
+                .append("name", "medium " + id)
+                .append("updatedDate", new Date().toString());
+    }
 
     public static String createPlaceJson(Long id) {
         JsonObject jsonObject = new JsonObject();
@@ -112,6 +185,14 @@ public class TestDataGenerator {
         jsonObject.addProperty("updatedDate", new Date().toString());
 
         return jsonObject.toString();
+    }
+    public static Document createPlaceDocument(Long id) {
+        return new Document()
+                .append("id", id)
+                .append("name", "place " + id)
+                .append("address", "address at  " + id)
+                .append("coordinates", id + "x" + id)
+                .append("updatedDate", new Date().toString());
     }
 
     public static String createReleaseJson(Long id, Integer maxRecordId, Integer maxLanguageId, Integer maxLabelId, Integer maxMediumId) {
@@ -130,5 +211,20 @@ public class TestDataGenerator {
         jsonObject.addProperty("updatedDate", new Date().toString());
 
         return jsonObject.toString();
+    }
+    public static Document createReleaseDocument(Long id, Integer maxRecordId, Integer maxLanguageId, Integer maxLabelId, Integer maxMediumId) {
+        Random random = new Random();
+
+        return new Document()
+                .append("id", id)
+                .append("recordId", random.nextInt(maxRecordId))
+                .append("languageId", random.nextInt(maxLanguageId))
+                .append("labelId", random.nextInt(maxLabelId))
+                .append("mediumId", random.nextInt(maxMediumId))
+                .append("barcode", (long) random.nextInt(1000))
+                .append("name", "place " + id)
+                .append("address", "address at  " + id)
+                .append("coordinates", id + "x" + id)
+                .append("updatedDate", new Date().toString());
     }
 }

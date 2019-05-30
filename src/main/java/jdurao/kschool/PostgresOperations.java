@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 0)
 @Measurement(iterations = 4)
 public class PostgresOperations {
-    @Param({"1"})
+    /*@Param({"1"})
     public int iterations;
 
     List<String> valuesSmall = new ArrayList<>();
@@ -232,7 +232,9 @@ public class PostgresOperations {
         EntityTransaction entityTransaction = entityManager.getTransaction();
 
         entityTransaction.begin();
+
         entityManager.createNativeQuery("INSERT INTO areas (area) VALUES ('" + TestDataGenerator.createAreaJson(UUID.randomUUID().getMostSignificantBits()) + "')").executeUpdate();
+
         entityTransaction.commit();
         entityManager.close();
         entityManagerFactory.close();
@@ -437,5 +439,5 @@ public class PostgresOperations {
         entityTransaction.commit();
         entityManager.close();
         entityManagerFactory.close();
-    }
+    }*/
 }

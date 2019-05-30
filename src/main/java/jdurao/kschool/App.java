@@ -12,7 +12,7 @@ public class App {
         PrintStream out = new PrintStream(new FileOutputStream("results-" + new Date().getTime() + ".txt"));
         System.setOut(out);
 
-        PostgresOperations postgresOperations = new PostgresOperations();
+        /*PostgresOperations postgresOperations = new PostgresOperations();
         postgresOperations.main();
         postgresOperations.setupSets();
         postgresOperations.aacleanup();
@@ -28,6 +28,17 @@ public class App {
         postgresOperations.jDeleteDocument();
         postgresOperations.kSelectSimple();
         postgresOperations.lSelectFiltered();
-        postgresOperations.mSelectJoined();
+        postgresOperations.mSelectJoined();*/
+
+        MongoOperations mongoOperations = new MongoOperations();
+        mongoOperations.main();
+        mongoOperations.setupSets();
+        mongoOperations.aaCleanup();
+        mongoOperations.abCreationData();
+        mongoOperations.bInsertOneRecord();
+        mongoOperations.cInsertMultipleRecordsSmall();
+        mongoOperations.dInsertMultipleRecordsMedium();
+        mongoOperations.eInsertMultipleRecordsLarge();
+        mongoOperations.fUpdateFieldOne();
     }
 }
