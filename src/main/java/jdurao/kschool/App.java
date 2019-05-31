@@ -35,7 +35,7 @@ public class App {
         mongoOperations.setupSets();
         mongoOperations.aaCleanup();
         mongoOperations.abCreationData();
-        mongoOperations.bInsertOneRecord();
+        //mongoOperations.bInsertOneRecord();
         mongoOperations.cInsertMultipleRecordsSmall();
         mongoOperations.dInsertMultipleRecordsMedium();
         mongoOperations.eInsertMultipleRecordsLarge();

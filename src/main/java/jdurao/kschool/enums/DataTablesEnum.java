@@ -1,6 +1,7 @@
 package jdurao.kschool.enums;
 
 public enum DataTablesEnum {
+    UNIQUE_COUNTER("counter"),
     AREAS("areas"),
     ARTISTS("artists"),
     FORMATS("formats"),

@@ -1,7 +1,12 @@
 package jdurao.kschool;
 
+import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import jdurao.kschool.enums.DataTablesEnum;
 import jdurao.kschool.util.TestDataGenerator;
 import org.bson.Document;
@@ -10,23 +15,18 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
 
 import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 
-@BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx16G"})
-@Warmup(iterations = 0)
-@Measurement(iterations = 4)
 public class MongoOperations {
-    @Param({"1"})
-    public int iterations;
-
     MongoClient client;
     MongoDatabase database;
 
@@ -42,85 +42,74 @@ public class MongoOperations {
     List<Document> valuesReleases = new ArrayList<>();
     List<Document> valuesTracks = new ArrayList<>();
 
-    Integer minSmall = 0, minMedium = 0, minLarge = 0;
-
     Boolean executed = false;
+    Boolean executedLoop = false;
     Boolean executedSetup = false;
 
     public void main() throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(jdurao.kschool.MongoOperations.class.getSimpleName())
                 .forks(1)
-                .operationsPerInvocation(1)
+                .mode(Mode.AverageTime)
+                .measurementTime(TimeValue.milliseconds(1))
+                .measurementIterations(1)
+                .warmupIterations(0)
                 .build();
 
         new Runner(opt).run();
     }
 
     private void createArea(int maxId) {
-        Integer newMaxId = maxId + minSmall;
-
-        for (int i = minSmall; i <= newMaxId; i++)
-            valuesSmall.add(TestDataGenerator.createAreaDocument((long)i));
-
-        minSmall = minSmall + maxId;
+        for (int i = 0; i <= maxId; i++)
+            valuesSmall.add(TestDataGenerator.createAreaDocument( i));
     }
     private void createArtist(int maxId, int maxAreaId) {
-        Integer newMaxId = maxId + minLarge;
-
-        for (int i = minLarge; i <= newMaxId; i++)
-            valuesLarge.add(TestDataGenerator.createArtistDocument((long)i, maxAreaId));
-
-        minLarge = minLarge + maxId;
+        for (int i = 0; i <= maxId; i++)
+            valuesLarge.add(TestDataGenerator.createArtistDocument(i, maxAreaId));
     }
     private void createFormat(int maxId) {
         for (int i = 0; i <= maxId; i++)
-            valuesFormat.add(TestDataGenerator.createFormatDocument((long)i));
+            valuesFormat.add(TestDataGenerator.createFormatDocument(i));
     }
     private void createLabel(int maxId, int maxAreaId) {
-        Integer newMaxId = maxId + minMedium;
-
-        for (int i = minMedium; i <= newMaxId; i++)
-            valuesMedium.add(TestDataGenerator.createLabelDocument((long)i, maxAreaId));
-
-        minMedium = minMedium + maxId;
+        for (int i = 0; i <= maxId; i++)
+            valuesMedium.add(TestDataGenerator.createLabelDocument(i, maxAreaId));
     }
     private void createLanguage(int maxId) {
         for (int i = 0; i <= maxId; i++)
-            valuesLanguages.add(TestDataGenerator.createLanguageDocument((long)i));
+            valuesLanguages.add(TestDataGenerator.createLanguageDocument(i));
     }
     private void createMediums(int maxId, int maxFormatId) {
         for (int i = 0; i <= maxId; i++)
-            valuesMediums.add(TestDataGenerator.createMediumDocument((long)i, maxFormatId));
+            valuesMediums.add(TestDataGenerator.createMediumDocument(i, maxFormatId));
     }
     private void createPlaces(int maxId) {
         for (int i = 0; i <= maxId; i++)
-            valuesPlaces.add(TestDataGenerator.createPlaceDocument((long)i));
+            valuesPlaces.add(TestDataGenerator.createPlaceDocument(i));
     }
     private void createRecords(int maxId, int maxArtistId) {
         for (int i = 0; i <= maxId; i++)
-            valuesRecords.add(TestDataGenerator.createRecordDocument((long)i, maxArtistId));
+            valuesRecords.add(TestDataGenerator.createRecordDocument(i, maxArtistId));
     }
     private void createReleases(int maxId, Integer maxRecordId, Integer maxLanguageId, Integer maxLabelId, Integer maxMediumId) {
         for (int i = 0; i <= maxId; i++)
-            valuesReleases.add(TestDataGenerator.createReleaseDocument((long) i, maxRecordId, maxLanguageId, maxLabelId, maxMediumId));
+            valuesReleases.add(TestDataGenerator.createReleaseDocument( i, maxRecordId, maxLanguageId, maxLabelId, maxMediumId));
     }
     private void createTracks(int maxId, Integer maxRecordId) {
         for (int i = 0; i <= maxId; i++)
-            valuesTracks.add(TestDataGenerator.createTrackDocument((long) i, maxRecordId));
+            valuesTracks.add(TestDataGenerator.createTrackDocument( i, maxRecordId));
     }
 
-    @Setup(Level.Iteration)
+    @Setup(Level.Invocation)
     public void setupSets() {
         if (!executedSetup) {
             client = new MongoClient("localhost", 27017);
             database = client.getDatabase("mongoDatabase");
             executedSetup = true;
+            createArea(100);
+            createLabel(1000, 100);
+            createArtist(10000, 100);
         }
-
-        createArea(100);
-        createLabel(1000, 100);
-        createArtist(10000, 100);
     }
 
     @Benchmark
@@ -149,7 +138,7 @@ public class MongoOperations {
             createMediums(10, 100);
             createPlaces(100);
             createRecords(100, 10000);
-            createReleases(10, 100, 100, 100, 100);
+            createReleases(200, 100, 100, 100, 100);
             createTracks(1000, 100);
 
             database.createCollection(DataTablesEnum.AREAS.getName());
@@ -176,50 +165,78 @@ public class MongoOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void bInsertOneRecord() {
-        database.getCollection(DataTablesEnum.AREAS.getName()).insertOne(TestDataGenerator.createAreaDocument(UUID.randomUUID().getMostSignificantBits()));
+        database.getCollection(DataTablesEnum.AREAS.getName()).insertOne(TestDataGenerator.createAreaDocument(200000));
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void cInsertMultipleRecordsSmall() {
         database.getCollection(DataTablesEnum.AREAS.getName()).insertMany(valuesSmall);
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void dInsertMultipleRecordsMedium() {
         database.getCollection(DataTablesEnum.LABELS.getName()).insertMany(valuesMedium);
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void eInsertMultipleRecordsLarge() {
         database.getCollection(DataTablesEnum.ARTISTS.getName()).insertMany(valuesLarge);
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void fUpdateFieldOne() {
-        database.getCollection(DataTablesEnum.AREAS.getName()).updateOne(eq("id", 99), new Document("$set", new Document("comment", "New Comment")));
+        UpdateResult updateResult =
+                database.getCollection(DataTablesEnum.AREAS.getName())
+                        .updateOne(eq("_id", 0), new Document("$set", new Document("comment", "New Comment")));
+        System.out.println(updateResult.getModifiedCount());
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void gUpdateFieldMultiple() {
+        MongoCollection<Document> artists = database.getCollection(DataTablesEnum.ARTISTS.getName());
+
+        UpdateResult updateResult = artists.updateMany(lte("_id", 10),new Document("$set", new Document("areaId", "**Updated** 1322112")));
+        System.out.println(updateResult.getModifiedCount());
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void hUpdateFieldLinked() {
+        MongoCollection<Document> releases = database.getCollection(DataTablesEnum.RELEASES.getName());
+        MongoCollection<Document> records = database.getCollection(DataTablesEnum.RECORDS.getName());
+
+        MongoCursor<Document> valuesReleases = releases.find(lt("_id", 50)).iterator();
+        MongoCursor<Document> valuesRecords = records.find().iterator();
+
+        try {
+            while (valuesReleases.hasNext()) {
+                Integer artistId = null;
+                Document release = valuesReleases.next();
+
+                secondWhile:
+                while (valuesRecords.hasNext()) {
+                    Document record = valuesRecords.next();
+
+                    Integer id = (Integer) record.get("_id");
+                    Integer recordId = (Integer) release.get("recordId");
+
+                    if (Math.toIntExact(id) == recordId) {
+                        System.out.println("******************************");
+                        artistId = (Integer) record.get("artistId");
+                        break secondWhile;
+                    }
+                }
+
+                if (artistId != null) {
+                    System.out.println("******************************");
+                    System.out.println(release.get("_id"));
+                    releases.updateOne(eq("_id", release.get("_id")), new Document("$set", new Document("comment", "New Comment").append("artistId", artistId)), true, false);
+                }
+            }
+        } finally {
+            valuesReleases.close();
+            valuesRecords.close();
+        }
     }
 
     @Benchmark

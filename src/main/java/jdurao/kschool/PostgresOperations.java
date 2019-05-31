@@ -51,7 +51,10 @@ public class PostgresOperations {
         Options opt = new OptionsBuilder()
                 .include(PostgresOperations.class.getSimpleName())
                 .forks(1)
-                .operationsPerInvocation(1)
+                .mode(Mode.AverageTime)
+                .measurementTime(TimeValue.milliseconds(1))
+                .measurementIterations(1)
+                .warmupIterations(0)
                 .build();
 
         new Runner(opt).run();
@@ -198,7 +201,7 @@ public class PostgresOperations {
             createMediums(10, 100);
             createPlaces(100);
             createRecords(100, 10000);
-            createReleases(10, 100, 100, 100, 100);
+            createReleases(200, 100, 100, 100, 100);
             createTracks(1000, 100);
 
             EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
