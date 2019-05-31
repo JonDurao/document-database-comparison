@@ -2,14 +2,20 @@ package jdurao.kschool;
 
 import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
+import com.mongodb.TransactionOptions;
+import com.mongodb.WriteConcern;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import jdurao.kschool.enums.DataTablesEnum;
 import jdurao.kschool.util.TestDataGenerator;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -17,15 +23,18 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
+import javax.print.Doc;
 import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Updates.*;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx16G"})
+
 public class MongoOperations {
     MongoClient client;
     MongoDatabase database;
@@ -113,8 +122,6 @@ public class MongoOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 1)
     public void aaCleanup() {
         database.getCollection(DataTablesEnum.AREAS.getName()).drop();
         database.getCollection(DataTablesEnum.ARTISTS.getName()).drop();
@@ -129,8 +136,6 @@ public class MongoOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 1)
     public void abCreationData() {
         if (!executed) {
             createFormat(10);
@@ -186,51 +191,73 @@ public class MongoOperations {
 
     @Benchmark
     public void fUpdateFieldOne() {
+        MongoCollection<Document> areas = database.getCollection(DataTablesEnum.AREAS.getName());
+        Bson filter = null;
+        Bson query = null;
+
+        filter = eq("_id", 0);
+        query = combine(set("comment", "comment"));
+        UpdateResult result = areas.updateMany(filter, query);
+        System.out.println(result.getModifiedCount());
+
         UpdateResult updateResult =
                 database.getCollection(DataTablesEnum.AREAS.getName())
-                        .updateOne(eq("_id", 0), new Document("$set", new Document("comment", "New Comment")));
+                        .updateOne(filter, query);
         System.out.println(updateResult.getModifiedCount());
     }
 
     @Benchmark
     public void gUpdateFieldMultiple() {
         MongoCollection<Document> artists = database.getCollection(DataTablesEnum.ARTISTS.getName());
+        Bson filter = null;
+        Bson query = null;
 
-        UpdateResult updateResult = artists.updateMany(lte("_id", 10),new Document("$set", new Document("areaId", "**Updated** 1322112")));
-        System.out.println(updateResult.getModifiedCount());
+        filter = lte("_id", 10);
+        query = combine(set("areaId", 9999));
+        UpdateResult result = artists.updateMany(filter, query);
+        System.out.println(result.getModifiedCount());
     }
 
     @Benchmark
     public void hUpdateFieldLinked() {
         MongoCollection<Document> releases = database.getCollection(DataTablesEnum.RELEASES.getName());
         MongoCollection<Document> records = database.getCollection(DataTablesEnum.RECORDS.getName());
-
         MongoCursor<Document> valuesReleases = releases.find(lt("_id", 50)).iterator();
         MongoCursor<Document> valuesRecords = records.find().iterator();
+
+        UpdateOptions options = new UpdateOptions().upsert(true);
 
         try {
             while (valuesReleases.hasNext()) {
                 Integer artistId = null;
                 Document release = valuesReleases.next();
 
+                System.out.println(release.get("_id"));
+
                 secondWhile:
                 while (valuesRecords.hasNext()) {
                     Document record = valuesRecords.next();
+
+                    System.out.println("RECORD " + record.get("_id"));
 
                     Integer id = (Integer) record.get("_id");
                     Integer recordId = (Integer) release.get("recordId");
 
                     if (Math.toIntExact(id) == recordId) {
-                        System.out.println("******************************");
                         artistId = (Integer) record.get("artistId");
+                        System.out.println("ARTIST ID " + artistId);
                         break secondWhile;
                     }
                 }
 
                 if (artistId != null) {
-                    System.out.println("******************************");
-                    System.out.println(release.get("_id"));
-                    releases.updateOne(eq("_id", release.get("_id")), new Document("$set", new Document("comment", "New Comment").append("artistId", artistId)), true, false);
+                    Bson filter = null;
+                    Bson query = null;
+
+                    filter = eq("_id", release.get("_id"));
+                    query = combine(set("comment", "New Comment"), setOnInsert("artistId", artistId));
+
+                    releases.updateOne(filter, new Document("$set", query));
                 }
             }
         } finally {
@@ -240,32 +267,73 @@ public class MongoOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void iDeleteKeyValuePair() {
+        MongoCollection<Document> areas = database.getCollection(DataTablesEnum.AREAS.getName());
+        Bson filter = null;
+        Bson query = null;
+
+        filter = lt("_id", 10);
+        query = combine(unset("comment"));
+        UpdateResult result = areas.updateMany(filter, query);
+        System.out.println(result.getModifiedCount());
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void jDeleteDocument() {
+        MongoCollection<Document> areas = database.getCollection(DataTablesEnum.AREAS.getName());
+        Bson filter = null;
+        Bson query = null;
+
+        filter = lt("_id", 10);
+        DeleteResult result = areas.deleteMany(filter);
+        System.out.println(result.getDeletedCount());
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void kSelectSimple() {
+        MongoCollection<Document> formats = database.getCollection(DataTablesEnum.FORMATS.getName());
+        formats.find();
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void lSelectFiltered() {
+        MongoCollection<Document> records = database.getCollection(DataTablesEnum.RECORDS.getName());
+        Bson filter = null;
+
+        filter = eq("_id", 1);
+        records.find(filter);
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void mSelectJoined() {
+        MongoCollection<Document> mediums = database.getCollection(DataTablesEnum.RECORDS.getName());
+        MongoCollection<Document> releases = database.getCollection(DataTablesEnum.RECORDS.getName());
+        MongoCollection<Document> formats = database.getCollection(DataTablesEnum.RECORDS.getName());
+        Bson filterMedium = null;
+        Bson filterRelease = null;
+
+        Iterator<Document> iteratorReleases = releases.find().iterator();
+
+        while (iteratorReleases.hasNext()) {
+            Document release = iteratorReleases.next();
+
+            filterRelease = eq("_id", release.get("_id"));
+
+            Iterator<Document> iteratorMediums = mediums.find(filterRelease).iterator();
+
+            while (iteratorMediums.hasNext()) {
+                Document medium = iteratorMediums.next();
+
+                filterMedium = eq("_id", release.get("_id"));
+
+                Iterator<Document> iteratorFormats = formats.find(filterMedium).iterator();
+
+                while (iteratorFormats.hasNext()) {
+                    Document format = iteratorFormats.next();
+
+                    System.out.println("FORMAT " + format.get("_id"));
+                }
+            }
+        }
     }
 }
