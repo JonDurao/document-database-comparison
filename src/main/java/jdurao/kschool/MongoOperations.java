@@ -36,7 +36,7 @@ import static com.mongodb.client.model.Updates.*;
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx16G"})
 
 public class MongoOperations {
-    MongoClient client;
+    /*MongoClient client;
     MongoDatabase database;
 
     List<Document> valuesSmall = new ArrayList<>();
@@ -317,14 +317,14 @@ public class MongoOperations {
         while (iteratorReleases.hasNext()) {
             Document release = iteratorReleases.next();
 
-            filterRelease = eq("_id", release.get("_id"));
+            filterRelease = eq("_id", release.get("mediumId"));
 
             Iterator<Document> iteratorMediums = mediums.find(filterRelease).iterator();
 
             while (iteratorMediums.hasNext()) {
                 Document medium = iteratorMediums.next();
 
-                filterMedium = eq("_id", release.get("_id"));
+                filterMedium = eq("_id", medium.get("formatId"));
 
                 Iterator<Document> iteratorFormats = formats.find(filterMedium).iterator();
 
@@ -335,5 +335,5 @@ public class MongoOperations {
                 }
             }
         }
-    }
+    }*/
 }

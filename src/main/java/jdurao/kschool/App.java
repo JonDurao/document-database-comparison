@@ -30,15 +30,21 @@ public class App {
         postgresOperations.lSelectFiltered();
         postgresOperations.mSelectJoined();*/
 
-        MongoOperations mongoOperations = new MongoOperations();
+        /*MongoOperations mongoOperations = new MongoOperations();
         mongoOperations.main();
         mongoOperations.setupSets();
         mongoOperations.aaCleanup();
         mongoOperations.abCreationData();
-        //mongoOperations.bInsertOneRecord();
+        mongoOperations.bInsertOneRecord();
         mongoOperations.cInsertMultipleRecordsSmall();
         mongoOperations.dInsertMultipleRecordsMedium();
         mongoOperations.eInsertMultipleRecordsLarge();
-        mongoOperations.fUpdateFieldOne();
+        mongoOperations.fUpdateFieldOne();*/
+
+        CouchbaseOperations couchbaseOperations = new CouchbaseOperations();
+        couchbaseOperations.main();
+        couchbaseOperations.setupSets();
+        couchbaseOperations.aaCleanup();
+        couchbaseOperations.abCreationData();
     }
 }
