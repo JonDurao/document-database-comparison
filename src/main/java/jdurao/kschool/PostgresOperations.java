@@ -9,6 +9,7 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.openjdk.jmh.runner.options.TimeValue;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 @Warmup(iterations = 0)
 @Measurement(iterations = 4)
 public class PostgresOperations {
-    /*@Param({"1"})
+    @Param({"1"})
     public int iterations;
 
     List<String> valuesSmall = new ArrayList<>();
@@ -62,33 +63,33 @@ public class PostgresOperations {
 
     private void createArea(int maxId) {
         for (int i = 0; i <= maxId; i++)
-            valuesSmall.add("('" + TestDataGenerator.createAreaJson((long) i) + "')");
+            valuesSmall.add("('" + TestDataGenerator.createAreaJson(i) + "')");
     }
 
     private void createArtist(int maxId, int maxAreaId) {
         for (int i = 0; i <= maxId; i++)
-            valuesLarge.add("('" + TestDataGenerator.createArtistJson((long) i, maxAreaId) + "')");
+            valuesLarge.add("('" + TestDataGenerator.createArtistJson(i, maxAreaId) + "')");
     }
 
     private void createFormat(int maxId) {
         List<String> values = new ArrayList<>();
 
         for (int i = 0; i <= maxId; i++)
-            values.add("('" + TestDataGenerator.createFormatJson((long) i) + "')");
+            values.add("('" + TestDataGenerator.createFormatJson(i) + "')");
 
         inputFormat = String.join(",", values);
     }
 
     private void createLabel(int maxId, int maxAreaId) {
         for (int i = 0; i <= maxId; i++)
-            valuesMedium.add("('" + TestDataGenerator.createLabelJson((long) i, maxAreaId) + "')");
+            valuesMedium.add("('" + TestDataGenerator.createLabelJson(i, maxAreaId) + "')");
     }
 
     private void createLanguage(int maxId) {
         List<String> values = new ArrayList<>();
 
         for (int i = 0; i <= maxId; i++)
-            values.add("('" + TestDataGenerator.createLanguageJson((long) i) + "')");
+            values.add("('" + TestDataGenerator.createLanguageJson(i) + "')");
 
         inputLanguages = String.join(",", values);
     }
@@ -97,7 +98,7 @@ public class PostgresOperations {
         List<String> values = new ArrayList<>();
 
         for (int i = 0; i <= maxId; i++)
-            values.add("('" + TestDataGenerator.createMediumJson((long) i, maxFormatId) + "')");
+            values.add("('" + TestDataGenerator.createMediumJson(i, maxFormatId) + "')");
 
         inputMediums = String.join(",", values);
     }
@@ -106,7 +107,7 @@ public class PostgresOperations {
         List<String> values = new ArrayList<>();
 
         for (int i = 0; i <= maxId; i++)
-            values.add("('" + TestDataGenerator.createPlaceJson((long) i) + "')");
+            values.add("('" + TestDataGenerator.createPlaceJson(i) + "')");
 
         inputPlaces = String.join(",", values);
     }
@@ -115,7 +116,7 @@ public class PostgresOperations {
         List<String> values = new ArrayList<>();
 
         for (int i = 0; i <= maxId; i++)
-            values.add("('" + TestDataGenerator.createRecordJson((long) i, maxArtistId) + "')");
+            values.add("('" + TestDataGenerator.createRecordJson(i, maxArtistId) + "')");
 
         inputRecords = String.join(",", values);
     }
@@ -124,7 +125,7 @@ public class PostgresOperations {
         List<String> values = new ArrayList<>();
 
         for (int i = 0; i <= maxId; i++)
-            values.add("('" + TestDataGenerator.createReleaseJson((long) i, maxRecordId, maxLanguageId, maxLabelId, maxMediumId) + "')");
+            values.add("('" + TestDataGenerator.createReleaseJson(i, maxRecordId, maxLanguageId, maxLabelId, maxMediumId) + "')");
 
         inputReleases = String.join(",", values);
     }
@@ -133,7 +134,7 @@ public class PostgresOperations {
         List<String> values = new ArrayList<>();
 
         for (int i = 0; i <= maxId; i++)
-            values.add("('" + TestDataGenerator.createTrackJson((long) i, maxRecordId) + "')");
+            values.add("('" + TestDataGenerator.createTrackJson(i, maxRecordId) + "')");
 
         inputTracks = String.join(",", values);
     }
@@ -154,8 +155,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 1)
     public void aacleanup() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -191,8 +190,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 1)
     public void abCreationData() {
         if (!executed) {
             createLabel(100, 100);
@@ -227,8 +224,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void bInsertOneRecord() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -236,7 +231,7 @@ public class PostgresOperations {
 
         entityTransaction.begin();
 
-        entityManager.createNativeQuery("INSERT INTO areas (area) VALUES ('" + TestDataGenerator.createAreaJson(UUID.randomUUID().getMostSignificantBits()) + "')").executeUpdate();
+        entityManager.createNativeQuery("INSERT INTO areas (area) VALUES ('" + TestDataGenerator.createAreaJson(20000) + "')").executeUpdate();
 
         entityTransaction.commit();
         entityManager.close();
@@ -244,8 +239,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void cInsertMultipleRecordsSmall() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -261,8 +254,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void dInsertMultipleRecordsMedium() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -278,8 +269,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void eInsertMultipleRecordsLarge() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -295,8 +284,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void fUpdateFieldOne() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -304,7 +291,7 @@ public class PostgresOperations {
 
         entityTransaction.begin();
 
-        Areas area = (Areas) entityManager.createNativeQuery("SELECT  * FROM areas a WHERE a.area->'id' = '99' LIMIT 1", Areas.class).getSingleResult();
+        Areas area = (Areas) entityManager.createNativeQuery("SELECT  * FROM areas a WHERE a.area->'id' = '0' LIMIT 1", Areas.class).getSingleResult();
 
         area.getArea().setComment("New Comment");
 
@@ -316,8 +303,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void gUpdateFieldMultiple() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -326,9 +311,9 @@ public class PostgresOperations {
         entityTransaction.begin();
 
         entityManager.createNativeQuery("UPDATE artists " +
-                "SET artist = artist || '{\"areaID\": " + 999999999 + " }' " +
+                "SET artist = artist || '{\"areaID\": " + 9999 + " }' " +
                 "WHERE ARTIST->'id' " +
-                "IN ('1', '2', '3', '4', '5', '6', '7', '8', '9')").executeUpdate();
+                "IN ('0','1', '2', '3', '4', '5', '6', '7', '8', '9')").executeUpdate();
 
         entityTransaction.commit();
         entityManager.close();
@@ -336,8 +321,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void hUpdateFieldLinked() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -356,8 +339,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void iDeleteKeyValuePair() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -367,7 +348,7 @@ public class PostgresOperations {
 
         entityManager.createNativeQuery("UPDATE AREAS " +
                 "SET AREA = AREA - 'comment' " +
-                "WHERE AREA->'id' > '99' OR AREA->'id' < '99';").executeUpdate();
+                "WHERE AREA->'id' < '10';").executeUpdate();
 
         entityTransaction.commit();
         entityManager.close();
@@ -375,8 +356,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void jDeleteDocument() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -386,7 +365,7 @@ public class PostgresOperations {
 
         entityManager.createNativeQuery("DELETE " +
                 "FROM AREAS " +
-                "WHERE AREA->'id' > '99' OR AREA->'id' < '99';").executeUpdate();
+                "WHERE AREA->'id' < '10';").executeUpdate();
 
         entityTransaction.commit();
         entityManager.close();
@@ -394,8 +373,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void kSelectSimple() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -411,8 +388,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void lSelectFiltered() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -428,8 +403,6 @@ public class PostgresOperations {
     }
 
     @Benchmark
-    @Warmup(iterations = 0)
-    @Measurement(iterations = 4)
     public void mSelectJoined() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -442,5 +415,19 @@ public class PostgresOperations {
         entityTransaction.commit();
         entityManager.close();
         entityManagerFactory.close();
-    }*/
+    }
+    @Benchmark
+    public void nSelectCount() {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+
+        entityTransaction.begin();
+
+        entityManager.createNativeQuery("SELECT COUNT(*) from formats").getSingleResult();
+
+        entityTransaction.commit();
+        entityManager.close();
+        entityManagerFactory.close();
+    }
 }

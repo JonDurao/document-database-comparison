@@ -123,7 +123,7 @@ public class CouchbaseOperations {
     public void setupSets() {
         if (!executedSetup) {
             cluster = CouchbaseCluster.create("localhost");
-            cluster.authenticate("username", "password");
+            cluster.authenticate("Administrator", "ksPass");
 
             executedSetup = true;
             createArea(100);
@@ -134,59 +134,16 @@ public class CouchbaseOperations {
 
     @Benchmark
     public void aaCleanup() {
-        cluster = CouchbaseCluster.create("127.0.0.1");
-        ClusterManager clusterManager = cluster.clusterManager("Administrator", "12345");
-
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.AREAS.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.ARTISTS.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.FORMATS.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.LABELS.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.LANGUAGES.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.MEDIUMS.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.PLACES.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.RECORDS.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.RELEASES.getName())
-                .quota(128)
-                .build());
-        clusterManager.insertBucket(new DefaultBucketSettings.Builder()
-                .type(BucketType.COUCHBASE)
-                .name(DataTablesEnum.TRACKS.getName())
-                .quota(128)
-                .build());
+        cluster.openBucket(DataTablesEnum.AREAS.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.ARTISTS.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.FORMATS.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.LABELS.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.LANGUAGES.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.MEDIUMS.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.PLACES.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.RECORDS.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.RELEASES.getName()).bucketManager().flush();
+        cluster.openBucket(DataTablesEnum.TRACKS.getName()).bucketManager().flush();
     }
 
     @Benchmark
@@ -465,5 +422,12 @@ public class CouchbaseOperations {
             JsonDocument medium = cluster.openBucket(DataTablesEnum.MEDIUMS.getName()).get(String.valueOf(row.value().get("mediumId")));
             formats.add(cluster.openBucket(DataTablesEnum.FORMATS.getName()).get(String.valueOf(medium.content().get("formatId"))));
         }
+    }
+
+    @Benchmark
+    public void nSelectCount() {
+        N1qlQueryResult result = cluster.openBucket(
+                DataTablesEnum.FORMATS.getName()).query(N1qlQuery.simple("SELECT COUNTS(*) FROM `formats`")
+        );
     }
 }

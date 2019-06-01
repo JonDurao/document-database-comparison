@@ -36,7 +36,7 @@ import static com.mongodb.client.model.Updates.*;
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx16G"})
 
 public class MongoOperations {
-    /*MongoClient client;
+    MongoClient client;
     MongoDatabase database;
 
     List<Document> valuesSmall = new ArrayList<>();
@@ -212,7 +212,7 @@ public class MongoOperations {
         Bson filter = null;
         Bson query = null;
 
-        filter = lte("_id", 10);
+        filter = lt("_id", 10);
         query = combine(set("areaId", 9999));
         UpdateResult result = artists.updateMany(filter, query);
         System.out.println(result.getModifiedCount());
@@ -224,8 +224,6 @@ public class MongoOperations {
         MongoCollection<Document> records = database.getCollection(DataTablesEnum.RECORDS.getName());
         MongoCursor<Document> valuesReleases = releases.find(lt("_id", 50)).iterator();
         MongoCursor<Document> valuesRecords = records.find().iterator();
-
-        UpdateOptions options = new UpdateOptions().upsert(true);
 
         try {
             while (valuesReleases.hasNext()) {
@@ -255,9 +253,10 @@ public class MongoOperations {
                     Bson query = null;
 
                     filter = eq("_id", release.get("_id"));
-                    query = combine(set("comment", "New Comment"), setOnInsert("artistId", artistId));
+                    query = combine(set("artistId", artistId));
 
-                    releases.updateOne(filter, new Document("$set", query));
+                    database.getCollection(DataTablesEnum.RELEASES.getName())
+                            .updateOne(filter, query);
                 }
             }
         } finally {
@@ -335,5 +334,10 @@ public class MongoOperations {
                 }
             }
         }
-    }*/
+    }
+
+    @Benchmark
+    public void nSelectCount() {
+        database.getCollection(DataTablesEnum.FORMATS.getName()).countDocuments();
+    }
 }

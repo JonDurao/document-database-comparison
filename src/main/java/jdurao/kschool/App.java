@@ -12,7 +12,7 @@ public class App {
         PrintStream out = new PrintStream(new FileOutputStream("results-" + new Date().getTime() + ".txt"));
         System.setOut(out);
 
-        /*PostgresOperations postgresOperations = new PostgresOperations();
+        PostgresOperations postgresOperations = new PostgresOperations();
         postgresOperations.main();
         postgresOperations.setupSets();
         postgresOperations.aacleanup();
@@ -28,9 +28,10 @@ public class App {
         postgresOperations.jDeleteDocument();
         postgresOperations.kSelectSimple();
         postgresOperations.lSelectFiltered();
-        postgresOperations.mSelectJoined();*/
+        postgresOperations.mSelectJoined();
+        postgresOperations.nSelectCount();
 
-        /*MongoOperations mongoOperations = new MongoOperations();
+        MongoOperations mongoOperations = new MongoOperations();
         mongoOperations.main();
         mongoOperations.setupSets();
         mongoOperations.aaCleanup();
@@ -39,12 +40,32 @@ public class App {
         mongoOperations.cInsertMultipleRecordsSmall();
         mongoOperations.dInsertMultipleRecordsMedium();
         mongoOperations.eInsertMultipleRecordsLarge();
-        mongoOperations.fUpdateFieldOne();*/
+        mongoOperations.fUpdateFieldOne();
+        mongoOperations.gUpdateFieldMultiple();
+        mongoOperations.hUpdateFieldLinked();
+        mongoOperations.iDeleteKeyValuePair();
+        mongoOperations.kSelectSimple();
+        mongoOperations.lSelectFiltered();
+        mongoOperations.mSelectJoined();
+        mongoOperations.nSelectCount();
 
         CouchbaseOperations couchbaseOperations = new CouchbaseOperations();
         couchbaseOperations.main();
         couchbaseOperations.setupSets();
         couchbaseOperations.aaCleanup();
         couchbaseOperations.abCreationData();
+        couchbaseOperations.bInsertOneRecord();
+        couchbaseOperations.cInsertMultipleRecordsSmall();
+        couchbaseOperations.dInsertMultipleRecordsMedium();
+        couchbaseOperations.eInsertMultipleRecordsLarge();
+        couchbaseOperations.fUpdateFieldOne();
+        couchbaseOperations.gUpdateFieldMultiple();
+        couchbaseOperations.hUpdateFieldLinked();
+        couchbaseOperations.iDeleteKeyValuePair();
+        couchbaseOperations.jDeleteDocument();
+        couchbaseOperations.kSelectSimple();
+        couchbaseOperations.lSelectFiltered();
+        couchbaseOperations.mSelectJoined();
+        couchbaseOperations.nSelectCount();
     }
 }
