@@ -1,15 +1,9 @@
 package jdurao.kschool;
 
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
-import com.mongodb.TransactionOptions;
-import com.mongodb.WriteConcern;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import jdurao.kschool.enums.DataTablesEnum;
@@ -23,18 +17,18 @@ import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.TimeValue;
 
-import javax.print.Doc;
-import javax.xml.crypto.Data;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.lt;
 import static com.mongodb.client.model.Updates.*;
 
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx16G"})
-
 public class MongoOperations {
     MongoClient client;
     MongoDatabase database;
@@ -52,7 +46,6 @@ public class MongoOperations {
     List<Document> valuesTracks = new ArrayList<>();
 
     Boolean executed = false;
-    Boolean executedLoop = false;
     Boolean executedSetup = false;
 
     public void main() throws RunnerException {
@@ -70,43 +63,52 @@ public class MongoOperations {
 
     private void createArea(int maxId) {
         for (int i = 0; i <= maxId; i++)
-            valuesSmall.add(TestDataGenerator.createAreaDocument( i));
+            valuesSmall.add(TestDataGenerator.createAreaDocument(i));
     }
+
     private void createArtist(int maxId, int maxAreaId) {
         for (int i = 0; i <= maxId; i++)
             valuesLarge.add(TestDataGenerator.createArtistDocument(i, maxAreaId));
     }
+
     private void createFormat(int maxId) {
         for (int i = 0; i <= maxId; i++)
             valuesFormat.add(TestDataGenerator.createFormatDocument(i));
     }
+
     private void createLabel(int maxId, int maxAreaId) {
         for (int i = 0; i <= maxId; i++)
             valuesMedium.add(TestDataGenerator.createLabelDocument(i, maxAreaId));
     }
+
     private void createLanguage(int maxId) {
         for (int i = 0; i <= maxId; i++)
             valuesLanguages.add(TestDataGenerator.createLanguageDocument(i));
     }
+
     private void createMediums(int maxId, int maxFormatId) {
         for (int i = 0; i <= maxId; i++)
             valuesMediums.add(TestDataGenerator.createMediumDocument(i, maxFormatId));
     }
+
     private void createPlaces(int maxId) {
         for (int i = 0; i <= maxId; i++)
             valuesPlaces.add(TestDataGenerator.createPlaceDocument(i));
     }
+
     private void createRecords(int maxId, int maxArtistId) {
         for (int i = 0; i <= maxId; i++)
             valuesRecords.add(TestDataGenerator.createRecordDocument(i, maxArtistId));
     }
+
     private void createReleases(int maxId, Integer maxRecordId, Integer maxLanguageId, Integer maxLabelId, Integer maxMediumId) {
         for (int i = 0; i <= maxId; i++)
-            valuesReleases.add(TestDataGenerator.createReleaseDocument( i, maxRecordId, maxLanguageId, maxLabelId, maxMediumId));
+            valuesReleases.add(TestDataGenerator.createReleaseDocument(i, maxRecordId, maxLanguageId, maxLabelId, maxMediumId));
     }
+
     private void createTracks(int maxId, Integer maxRecordId) {
         for (int i = 0; i <= maxId; i++)
-            valuesTracks.add(TestDataGenerator.createTrackDocument( i, maxRecordId));
+            valuesTracks.add(TestDataGenerator.createTrackDocument(i, maxRecordId));
     }
 
     @Setup(Level.Invocation)
@@ -198,12 +200,10 @@ public class MongoOperations {
         filter = eq("_id", 0);
         query = combine(set("comment", "comment"));
         UpdateResult result = areas.updateMany(filter, query);
-        System.out.println(result.getModifiedCount());
 
         UpdateResult updateResult =
                 database.getCollection(DataTablesEnum.AREAS.getName())
                         .updateOne(filter, query);
-        System.out.println(updateResult.getModifiedCount());
     }
 
     @Benchmark
@@ -215,7 +215,6 @@ public class MongoOperations {
         filter = lt("_id", 10);
         query = combine(set("areaId", 9999));
         UpdateResult result = artists.updateMany(filter, query);
-        System.out.println(result.getModifiedCount());
     }
 
     @Benchmark
@@ -230,20 +229,15 @@ public class MongoOperations {
                 Integer artistId = null;
                 Document release = valuesReleases.next();
 
-                System.out.println(release.get("_id"));
-
                 secondWhile:
                 while (valuesRecords.hasNext()) {
                     Document record = valuesRecords.next();
-
-                    System.out.println("RECORD " + record.get("_id"));
 
                     Integer id = (Integer) record.get("_id");
                     Integer recordId = (Integer) release.get("recordId");
 
                     if (Math.toIntExact(id) == recordId) {
                         artistId = (Integer) record.get("artistId");
-                        System.out.println("ARTIST ID " + artistId);
                         break secondWhile;
                     }
                 }
@@ -274,7 +268,6 @@ public class MongoOperations {
         filter = lt("_id", 10);
         query = combine(unset("comment"));
         UpdateResult result = areas.updateMany(filter, query);
-        System.out.println(result.getModifiedCount());
     }
 
     @Benchmark
@@ -285,7 +278,6 @@ public class MongoOperations {
 
         filter = lt("_id", 10);
         DeleteResult result = areas.deleteMany(filter);
-        System.out.println(result.getDeletedCount());
     }
 
     @Benchmark
@@ -329,8 +321,6 @@ public class MongoOperations {
 
                 while (iteratorFormats.hasNext()) {
                     Document format = iteratorFormats.next();
-
-                    System.out.println("FORMAT " + format.get("_id"));
                 }
             }
         }

@@ -17,18 +17,12 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx16G"})
-@Warmup(iterations = 0)
-@Measurement(iterations = 4)
 public class PostgresOperations {
-    @Param({"1"})
-    public int iterations;
 
     List<String> valuesSmall = new ArrayList<>();
     List<String> valuesMedium = new ArrayList<>();
@@ -416,6 +410,7 @@ public class PostgresOperations {
         entityManager.close();
         entityManagerFactory.close();
     }
+
     @Benchmark
     public void nSelectCount() {
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
