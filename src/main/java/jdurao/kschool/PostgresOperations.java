@@ -23,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = {"-Xms2G", "-Xmx16G"})
 public class PostgresOperations {
+    EntityManagerFactory entityManagerFactory;
+    EntityManager entityManager;
+    EntityTransaction entityTransaction;
 
     List<String> valuesSmall = new ArrayList<>();
     List<String> valuesMedium = new ArrayList<>();
@@ -136,6 +139,10 @@ public class PostgresOperations {
     @Setup(Level.Invocation)
     public void setupSets() {
         if (!executedSetup) {
+            entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
+            entityManager = entityManagerFactory.createEntityManager();
+            entityTransaction = entityManager.getTransaction();
+
             createArea(100);
             createLabel(1000, 100);
             createArtist(10000, 100);
@@ -150,10 +157,6 @@ public class PostgresOperations {
 
     @Benchmark
     public void aacleanup() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("DROP TABLE AREAS;\n" +
@@ -179,8 +182,6 @@ public class PostgresOperations {
                 "CREATE TABLE TRACKS (ID SERIAL NOT NULL, TRACK JSONB, CONSTRAINT tracks_pkey PRIMARY KEY (ID));").executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
@@ -195,10 +196,6 @@ public class PostgresOperations {
             createReleases(200, 100, 100, 100, 100);
             createTracks(1000, 100);
 
-            EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-            EntityManager entityManager = entityManagerFactory.createEntityManager();
-            EntityTransaction entityTransaction = entityManager.getTransaction();
-
             entityTransaction.begin();
 
             entityManager.createNativeQuery("INSERT INTO formats (format) VALUES " + inputFormat).executeUpdate();
@@ -210,79 +207,48 @@ public class PostgresOperations {
             entityManager.createNativeQuery("INSERT INTO tracks (track) VALUES " + inputTracks).executeUpdate();
 
             entityTransaction.commit();
-            entityManager.close();
-            entityManagerFactory.close();
-
             executed = true;
         }
     }
 
     @Benchmark
     public void bInsertOneRecord() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("INSERT INTO areas (area) VALUES ('" + TestDataGenerator.createAreaJson(20000) + "')").executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void cInsertMultipleRecordsSmall() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("INSERT INTO areas (area) VALUES " + inputSmall).executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void dInsertMultipleRecordsMedium() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("INSERT INTO labels (label) VALUES " + inputMedium).executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void eInsertMultipleRecordsLarge() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("INSERT INTO artists (artist) VALUES " + inputLarge).executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void fUpdateFieldOne() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         Areas area = (Areas) entityManager.createNativeQuery("SELECT  * FROM areas a WHERE a.area->'id' = '0' LIMIT 1", Areas.class).getSingleResult();
@@ -292,16 +258,10 @@ public class PostgresOperations {
         entityManager.persist(area);
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void gUpdateFieldMultiple() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("UPDATE artists " +
@@ -310,16 +270,10 @@ public class PostgresOperations {
                 "IN ('0','1', '2', '3', '4', '5', '6', '7', '8', '9')").executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void hUpdateFieldLinked() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("UPDATE releases " +
@@ -328,16 +282,10 @@ public class PostgresOperations {
                 "WHERE RECORD->'id' = release->'recordId' AND release->'id' < '50';").executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void iDeleteKeyValuePair() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("UPDATE AREAS " +
@@ -345,84 +293,52 @@ public class PostgresOperations {
                 "WHERE AREA->'id' < '10';").executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void jDeleteDocument() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("DELETE " +
                 "FROM AREAS " +
-                "WHERE AREA->'id' < '10';").executeUpdate();
+                "WHERE AREA->'id' > '10' AND AREA->'id' <= '20';").executeUpdate();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void kSelectSimple() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         List<Formats> result = entityManager.createNativeQuery("SELECT * from formats", Formats.class).getResultList();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void lSelectFiltered() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         Records result = (Records) entityManager.createNativeQuery("SELECT * from records WHERE record->'id' = '1'", Records.class).getSingleResult();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void mSelectJoined() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         List<Formats> result = entityManager.createNativeQuery("SELECT FORMATS.* from RELEASES JOIN MEDIUMS ON release->'mediumId' = medium->'id' JOIN FORMATS ON FORMAT->'id' = MEDIUM->'formatId'", Formats.class).getResultList();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 
     @Benchmark
     public void nSelectCount() {
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("persistence");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction entityTransaction = entityManager.getTransaction();
-
         entityTransaction.begin();
 
         entityManager.createNativeQuery("SELECT COUNT(*) from formats").getSingleResult();
 
         entityTransaction.commit();
-        entityManager.close();
-        entityManagerFactory.close();
     }
 }
