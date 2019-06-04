@@ -251,11 +251,9 @@ public class PostgresOperations {
     public void fUpdateFieldOne() {
         entityTransaction.begin();
 
-        Areas area = (Areas) entityManager.createNativeQuery("SELECT  * FROM areas a WHERE a.area->'id' = '0' LIMIT 1", Areas.class).getSingleResult();
-
-        area.getArea().setComment("New Comment");
-
-        entityManager.persist(area);
+        entityManager.createNativeQuery("UPDATE areas " +
+                "SET area = area|| '{\"comment\": \"NewComment\" }' " +
+                "WHERE area->'id' = 0").executeUpdate();
 
         entityTransaction.commit();
     }
