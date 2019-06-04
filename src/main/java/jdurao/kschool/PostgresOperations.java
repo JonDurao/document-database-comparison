@@ -253,7 +253,7 @@ public class PostgresOperations {
 
         entityManager.createNativeQuery("UPDATE areas " +
                 "SET area = area|| '{\"comment\": \"NewComment\" }' " +
-                "WHERE area->'id' = 0").executeUpdate();
+                "WHERE area->'id' = '0'").executeUpdate();
 
         entityTransaction.commit();
     }
